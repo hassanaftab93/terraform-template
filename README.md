@@ -44,6 +44,7 @@ Deployment Status: [![Deploy to Heroku](https://github.com/hassanaftab93/REPO-NA
   Step 1
   ```bash
     terraform init
+    terraform plan
     terraform apply
     terraform destroy
   ```
