@@ -1,7 +1,7 @@
 
 # Terraform Template
 
-<!-- --- DEPLOYMENT STATUS CODE ---
+<!-- --- DEPLOYMENT STATUS CODE -----
 
 Deployment Status: [![Deploy to Heroku](https://github.com/hassanaftab93/REPO-NAME/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/hassanaftab93/REPO-NAME/actions/workflows/main.yml)
 
@@ -23,13 +23,12 @@ Deployment Status: [![Deploy to Heroku](https://github.com/hassanaftab93/REPO-NA
       🛠 Strategy
     </h2>
   </summary>
-  In our build pipeline we specify which environment we're deploying to, copying the relevant backend env.tf file to the project_name terraform folder (as backend.tf)
-
-  The env.tfvars files contain environment specific variables (passed in to terraform with -var-file).
-
-  We also use the ARM environment variables, specific to DEV/PROD, for signing in to Azure (ARM_CLIENT_ID, ARM_CLIENT_SECRET etc), which are grabbed from a KeyVault via an Azure DevOps Library / variable group specific for each environment.
-
-  We occasionally use conditional logic in the terraform code to set things based on which environment it is if it's not as simple as being covered by an environment specific variable. E.g. for our DR environment we are using some of the geo-replicated prod resources so we have a check like this against those resources: count = var.env == "DR" ? 0 : 1
+  
+  * SSH-Key -> first-key
+  * * ssh-keygen -t rsa
+  * Assign first-key -> new instance
+  * create security group on aws
+  * assign group to instance
   
 </details>
 
@@ -41,13 +40,44 @@ Deployment Status: [![Deploy to Heroku](https://github.com/hassanaftab93/REPO-NA
     </h2>
   </summary>
 
-  Step 1
+  Important Commands
   ```bash
     terraform init
-    terraform plan
-    terraform apply
+    terraform plan -var-file=var.tfvars
+    terraform apply -var-file=var.tfvars
     terraform destroy
+    terraform destroy -target=resourcename
   ```
+
+  Terraform init: if changing backend block, run this first!
+  ```bash
+    terraform init -migrate-state
+  ```
+
+  Terraform prevent locking - Lock Mechanism using DynamoDB for AWS (noSQL)
+  
+  ```bash
+    DynamoDB -> Add Table -> TableName (name) -> Partition Key (LockID) -> Create
+  ```
+  
+  Extra Commands
+  ```bash
+    terraform graph | dot -Tpdf > graph.pdf
+    terraform graph | dot -Tpdf > ../'terraform graph'/graph.pdf
+  ```
+
+  Terraform Workspaces: To segregate tfstate files
+  ```bash
+    terraform workspace help
+    terraform workspace new dev
+    terraform workspace new test
+    terraform workspace new prod
+    terraform workspace select dev
+    terraform workspace show
+    terraform workspace list
+    terraform workspace delete test
+  ```
+
 </details>
 
 <!---------------------------------------- SECTION DIVIDER ---------------------------------------->
