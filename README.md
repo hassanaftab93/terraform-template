@@ -78,6 +78,89 @@ Deployment Status: [![Deploy to Heroku](https://github.com/hassanaftab93/REPO-NA
     terraform workspace delete test
   ```
 
+  As Terraform is a well known tool for IaaC, it does have some caveats.
+  - No support for generating project structures
+  - No support for generating modules
+
+  To address these issues, a Makefile has been designed to generate a project and it uses basic bash commands to generate files in a proper folder structure following best practices
+
+  # Getting Started
+
+  Make sure you have the following installed
+  1. gnumake / make tool for using make commands
+  2. terraform
+  3. (optional) terragrunt
+
+  To get started,
+
+  1. Copy the 'Terraform' folder that contains makefile and 'terraform-templates' folder into a directory that the terraform project will be based in.
+
+  2. Now run
+    ```bash
+          make -C Terraform init provider=PROVIDER_NAME_HERE
+    ```
+    Provider name options are:
+      1. azurerm
+      2. google
+      3. aws
+      4. oci
+
+  3. This will generate a terraform folder with the following folder structure:
+      ```bash
+      ./terraform
+      ├── Makefile
+      ├── modules
+      ├── terraform-graph
+      ├── terraform.main.tf
+      ├── terraform.outputs.tf
+      ├── terraform.providers.tf
+      ├── terraform.variables.tf
+      └── variables
+          ├── local.tfvars
+          └── pipeline.tfvars
+      ```
+      and then open the terraform folder in a different vs code window
+
+  4. Now you can run the following to generate modules:
+
+      ```bash
+          make module module=MODULE_NAME_HERE
+      ```
+
+      suppose you run the following command:
+
+      ```bash
+          make module module=container_app
+      ```
+
+      this will generate the following structure inside modules folder:
+      ```bash
+      ./modules/container_app
+      ├── main.tf
+      ├── outputs.tf
+      └── variables.tf
+      ```
+
+  # Make Commands for Terraform
+
+  ```bash
+
+  make fmt -> This is format the code
+
+  make validate -> This will validate the code for errors
+
+  make plan -> This will run terraform plan command, and generate a "tfplan" file
+
+  make apply -> This will apply the infrastructure to the cloud
+
+  make destroy -> This will destroy the applied infrastructure
+
+  make refresh -> This refresh tfstate between local and remote
+
+  make graph -> This generates a graph of the infrastructure that is to be deployed
+
+  ```
+
 </details>
 
 <!---------------------------------------- SECTION DIVIDER ---------------------------------------->
