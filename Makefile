@@ -1,71 +1,26 @@
-.PHONY: init-azurerm
-init-azurerm:
+.PHONY: init
+init:
+ifeq ($(strip $(provider)),)
+	@echo "Error: Please specify a provider name. Example: make init name=azurerm OR google OR aws"
+else
 	mkdir -p terraform && \
+	mkdir -p terraform/modules terraform/variables terraform/terraform-graph && \
 	cp Makefile terraform/ && \
-	cd terraform && \
-	mkdir modules variables terraform-graph && \
-	cd variables && touch local.tfvars && cd .. && \
-	touch azure.variables.tf azure.main.tf azure.outputs.tf && \
-	echo 'terraform {' > azure.providers.tf && \
-	echo '  required_providers {' >> azure.providers.tf && \
-	echo '    azurerm = {' >> azure.providers.tf && \
-	echo '      source = "hashicorp/azurerm"' >> azure.providers.tf && \
-	echo '      version = "3.91.0"' >> azure.providers.tf && \
-	echo '    }' >> azure.providers.tf && \
-	echo '  }' >> azure.providers.tf && \
-	echo '}' >> azure.providers.tf && \
-	echo '' >> azure.providers.tf && \
-	echo 'provider "azurerm" {' >> azure.providers.tf && \
-	echo '  features {}' >> azure.providers.tf && \
-	echo '}' >> azure.providers.tf && \
-	terraform init && \
+	cp -r terraform-templates/base/$(provider)/* terraform/ && \
+	cp -r terraform-templates/variables/* terraform/variables/ && \
+	cd terraform && terraform init && \
 	code .
+endif
 
-.PHONY: init-aws
-init-aws:
-	mkdir -p terraform && \
-	cp Makefile terraform/ && \
-	cd terraform && \
-	mkdir modules variables terraform-graph && \
-	cd variables && touch local.tfvars && cd .. && \
-	touch aws.variables.tf aws.main.tf aws.outputs.tf && \
-	echo 'terraform {' > aws.providers.tf && \
-	echo '  required_providers {' >> aws.providers.tf && \
-	echo '    aws = {' >> aws.providers.tf && \
-	echo '      source = "hashicorp/aws"' >> aws.providers.tf && \
-	echo '      version = "5.36.0"' >> aws.providers.tf && \
-	echo '    }' >> aws.providers.tf && \
-	echo '  }' >> aws.providers.tf && \
-	echo '}' >> aws.providers.tf && \
-	echo '' >> aws.providers.tf && \
-	echo 'provider "aws" {' >> aws.providers.tf && \
-	echo '  features {}' >> aws.providers.tf && \
-	echo '}' >> aws.providers.tf && \
-	terraform init && \
-	code .
-
-.PHONY: init-google
-init-google:
-	mkdir -p terraform && \
-	cp Makefile terraform/ && \
-	cd terraform && \
-	mkdir modules variables terraform-graph && \
-	cd variables && touch local.tfvars && cd .. && \
-	touch google.variables.tf google.main.tf google.outputs.tf && \
-	echo 'terraform {' > google.providers.tf && \
-	echo '  required_providers {' >> google.providers.tf && \
-	echo '    google = {' >> google.providers.tf && \
-	echo '      source = "hashicorp/google"' >> google.providers.tf && \
-	echo '      version = "5.15.0"' >> google.providers.tf && \
-	echo '    }' >> google.providers.tf && \
-	echo '  }' >> google.providers.tf && \
-	echo '}' >> google.providers.tf && \
-	echo '' >> google.providers.tf && \
-	echo 'provider "google" {' >> google.providers.tf && \
-	echo '  features {}' >> google.providers.tf && \
-	echo '}' >> google.providers.tf && \
-	terraform init && \
-	code .
+.PHONY: module
+module:
+ifeq ($(strip $(module)),)
+	@echo "Error: Please specify a module name. Example: make module name=my_module"
+else
+	mkdir -p modules/$(module)
+	cp -r ../terraform-templates/modules/* modules/$(module)/
+	@echo "Created module in 'modules/$(module)' with main.tf, variables.tf, and outputs.tf"
+endif
 
 .PHONY: plan
 plan:
@@ -94,3 +49,5 @@ refresh:
 .PHONY: graph
 graph:
 	terraform graph | dot -Tpdf > terraform-graph/graph.pdf
+
+MAKEFLAGS += --silent
